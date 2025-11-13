@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 // ✅ Change this to your main Indicart site’s URL
-const INDICART_MAIN_SITE_URL = 'http://localhost:5173';
+const INDICART_MAIN_SITE_URL = 'https://indi-cart-project.vercel.app';
 
 const Header = () => {
   const { user, logout } = useAuth();
