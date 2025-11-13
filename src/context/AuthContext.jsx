@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-const INDICART_MAIN_SITE_URL = 'http://localhost:5173'; 
+const INDICART_MAIN_SITE_URL = 'https://indi-cart-project.vercel.app';
 
 const AuthContext = createContext(null);
 
