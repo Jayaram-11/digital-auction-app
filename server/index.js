@@ -1,4 +1,4 @@
-// server/index.js
+// auction-app/server/index.js
 
 require('dotenv').config();
 
@@ -17,38 +17,47 @@ connectDB();
 
 const app = express();
 
-// ✅ --- THE FIX IS HERE --- ✅
+// ✅ --- THIS IS THE FIX ---
+// 1. Create a "whitelist" of allowed URLs
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174'
+];
+
+// 2. Read the FRONTEND_URL string from Render
+const renderOrigin = process.env.FRONTEND_URL;
+if (renderOrigin) {
+  // 3. If it exists, split it by the comma and add to our list
+  const urls = renderOrigin.split(',');
+  urls.forEach(url => allowedOrigins.push(url.trim()));
+}
+
+// 4. Give the *full list* to CORS
 const corsOptions = {
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:5174', // Add this line
-    process.env.FRONTEND_URL
-  ],
-  methods: ['GET', 'POST', 'PUT']
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
 };
-app.use(cors(corsOptions));
-// ✅ --- END THE FIX --- ✅
+
+app.use(cors(corsOptions)); 
+// ✅ --- END THE FIX ---
 
 app.use(express.json());
 
 const server = http.createServer(app);
 
-// ✅ --- AND THE FIX IS HERE --- ✅
+// ✅ We also need to fix the Socket.IO CORS
 const io = new Server(server, {
-  cors: {
-    origin: [
-      'http://localhost:5173',
-      'http://localhost:5174', // Add this line
-      process.env.FRONTEND_URL
-    ],
-    methods: ['GET', 'POST']
-  }
+  cors: {
+    origin: allowedOrigins, // Use the same list
+    methods: ['GET', 'POST']
+  }
 });
-// ✅ --- END THE FIX --- ✅
+// ✅ --- END THE FIX ---
 
 app.use((req, res, next) => {
-  req.io = io;
-  next();
+  req.io = io;
+  next();
 });
 
 // Use routes
@@ -72,6 +81,6 @@ io.on('connection', (socket) => {
 // Start server
 const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => {
-  console.log(`🚀 Server is running on http://localhost:${PORT}`);
-  initScheduler(io); 
+  console.log(`🚀 Server is running on http://localhost:${PORT}`);
+  initScheduler(io); 
 });
